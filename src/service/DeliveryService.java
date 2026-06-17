@@ -3,6 +3,7 @@ package service;
 import admin.Admin;
 import admin.RestAdmin;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 import model.Customer;
 import model.DeliveryDataBase;
@@ -75,10 +76,11 @@ public class DeliveryService {
 		boolean back = false;
 		while (!back) {
 			ConsoleUI.printMenu("System Admin Menu",
-					new String[] { "1.  Add customer", "2.  Add restaurant admin", "3.  Add restaurant", "4.  Add rider",
-							"5.  Assign restaurant admin to restaurant", "6.  Assign rider to order",
+					new String[] { "1.  Add customer", "2.  Add restaurant admin", "3.  Add restaurant",
+							"4.  Add rider", "5.  Assign restaurant admin to restaurant", "6.  Assign rider to order",
 							"7.  Show all orders", "8.  Customer with most orders", "9.  Rider with most deliveries",
-							"10. Update restaurant open status", "0.  Back" });
+							"10. Update restaurant open status", "11. Sort & Display [HW3 Part A]",
+							"12. System Reports - Wildcards [HW3 Part D]", "0.  Back" });
 			int choice = ScannerUtils.readInt(scanner, "Choose option: ");
 			switch (choice) {
 			case 1:
@@ -110,6 +112,12 @@ public class DeliveryService {
 				break;
 			case 10:
 				updateRestaurantOpenStatusFlow();
+				break;
+			case 11:
+				sortMenuFlow();
+				break;
+			case 12:
+				reportsMenuFlow();
 				break;
 			case 0:
 				back = true;
@@ -176,9 +184,8 @@ public class DeliveryService {
 		ConsoleUI.success("Login successful. Welcome, " + rider.getFirstName() + "!");
 		boolean back = false;
 		while (!back) {
-			ConsoleUI.printMenu("Rider Menu",
-					new String[] { "1. Update order status", "2. Show active order", "3. Show order history",
-							"0. Back" });
+			ConsoleUI.printMenu("Rider Menu", new String[] { "1. Update order status", "2. Show active order",
+					"3. Show order history", "0. Back" });
 			int choice = ScannerUtils.readInt(scanner, "Choose option: ");
 			switch (choice) {
 			case 1:
@@ -498,12 +505,12 @@ public class DeliveryService {
 			ConsoleUI.error("Order not found or not assigned to you.");
 			return;
 		}
-		
+
 		if ("delivered".equals(order.getStatus())) {
 			ConsoleUI.info("Order is already delivered, no update needed.");
 			return;
 		}
-		
+
 		String status = ScannerUtils.readNonEmptyString(scanner, "New status (on_the_way/delivered): ");
 		if (!"on_the_way".equals(status) && !"delivered".equals(status)) {
 			ConsoleUI.error("Riders may update only to on_the_way or delivered.");
@@ -525,18 +532,19 @@ public class DeliveryService {
 	}
 
 	private void updateRestaurantOpenStatusFlow() {
-		Restaurant restaurant = dataBase.findRestaurantByCode(ScannerUtils.readNonEmptyString(scanner, "Restaurant code: "));
+		Restaurant restaurant = dataBase
+				.findRestaurantByCode(ScannerUtils.readNonEmptyString(scanner, "Restaurant code: "));
 		if (restaurant == null) {
 			ConsoleUI.error("Restaurant not found.");
 			return;
 		}
 		int status = ScannerUtils.readInt(scanner, "1 = open, 0 = closed: ");
-		
+
 		if (status != 0 && status != 1) {
 			ConsoleUI.error("Invalid status.");
 			return;
 		}
-		
+
 		restaurant.setOpen(status == 1);
 		ConsoleUI.success("Restaurant status updated.");
 	}
@@ -558,21 +566,20 @@ public class DeliveryService {
 
 	private void showOpenRestaurantsByCuisineFlow() {
 		String cuisine = ScannerUtils.readNonEmptyString(scanner, "Cuisine/type: ");
-		
+
 		if (!StringValidationUtils.isStringOnlyAlphabetic(cuisine)) {
 			ConsoleUI.error("Invalid cuisine/type.");
 			return;
 		}
-		
+
 		printList(dataBase.getOpenRestaurantsByCuisine(cuisine));
 	}
 
 	private void updateCustomerDetailsFlow(Customer customer) {
 		boolean back = false;
 		while (!back) {
-			ConsoleUI.printMenu("Update Customer Details",
-					new String[] { "1. Update street", "2. Update city", "3. Update zip code",
-							"4. Update phone", "5. Update email", "0. Back" });
+			ConsoleUI.printMenu("Update Customer Details", new String[] { "1. Update street", "2. Update city",
+					"3. Update zip code", "4. Update phone", "5. Update email", "0. Back" });
 			int choice = ScannerUtils.readInt(scanner, "Choose option: ");
 			switch (choice) {
 			case 1:
@@ -680,17 +687,141 @@ public class DeliveryService {
 		return false;
 	}
 
-	/** 
-	 * Utility method to print lists of any type with a common "no data" message for empty lists.
+	/**
+	 * Utility method to print lists of any type with a common "no data" message for
+	 * empty lists.
+	 * 
 	 * @param items the list of items to print
+	 */
+	/**
+	 * Prints all items in the list. HW3 Part C - Method Reference 1:
+	 * System.out::println forEach with System.out::println replaces the for loop.
 	 */
 	private void printList(ArrayList<?> items) {
 		if (items == null || items.isEmpty()) {
 			ConsoleUI.info("No data to display.");
 			return;
 		}
-		for (Object item : items) {
-			System.out.println(item);
+		items.forEach(System.out::println); // Method Reference 1: System.out::println
+	}
+
+	/**
+	 * HW3 Part A - Sort Menu. Accessible from System Admin menu, option 11. Option
+	 * 1: Comparable - Collections.sort calls Customer.compareTo (balance desc).
+	 * Option 2: Comparator - Restaurant.RatingComparator (rating desc). Option 3:
+	 * Comparator - Order.FinalPriceComparator (final price desc).
+	 */
+	private void sortMenuFlow() {
+		boolean back = false;
+		while (!back) {
+			ConsoleUI.printMenu("Sort & Display Menu",
+					new String[] { "1. Sort customers by balance - highest first [Comparable]",
+							"2. Sort restaurants by rating - highest first [Comparator]",
+							"3. Sort orders by final price - highest first [Comparator]",
+							"4. Sort riders by delivery count [Lambda]", "5. Sort customers by first name [Lambda]",
+							"6. Sort orders by date [Lambda]", "0. Back" });
+			int choice = ScannerUtils.readInt(scanner, "Choose option: ");
+			switch (choice) {
+			case 1:
+				// Comparable: Collections.sort calls Customer.compareTo automatically
+				ArrayList<Customer> sortedCustomers = new ArrayList<>(dataBase.getCustomers());
+				Collections.sort(sortedCustomers);
+				System.out.println("\n--- Customers sorted by balance (highest first) ---");
+				sortedCustomers.forEach(Customer::printSummary); // Method Reference 2: Customer::printSummary
+				break;
+			case 2:
+				// Comparator: Restaurant.RatingComparator passed to Collections.sort
+				ArrayList<Restaurant> sortedRestaurants = new ArrayList<>(dataBase.getRestaurants());
+				Collections.sort(sortedRestaurants, new Restaurant.RatingComparator());
+				System.out.println("\n--- Restaurants sorted by rating (highest first) ---");
+				for (Restaurant r : sortedRestaurants)
+					System.out.println(r.getName() + " | Rating: " + r.getRating());
+				break;
+			case 3:
+				// Comparator: Order.FinalPriceComparator passed to Collections.sort
+				ArrayList<Order> sortedOrders = new ArrayList<>(dataBase.getOrders());
+				Collections.sort(sortedOrders, new Order.FinalPriceComparator());
+				System.out.println("\n--- Orders sorted by final price (highest first) ---");
+				for (Order o : sortedOrders)
+					System.out.println(
+							"Order " + o.getCode() + " | Final Price: " + String.format("%.2f", o.getFinalPrice()));
+				break;
+			case 4:
+				// Lambda: sort riders by number of assigned orders (deliveries) descending
+				ArrayList<Rider> sortedRiders = new ArrayList<>(dataBase.getRiders());
+				sortedRiders.sort((r1, r2) -> r2.getAssignedOrders().size() - r1.getAssignedOrders().size());
+				System.out.println("\n--- Riders sorted by delivery count (highest first) ---");
+				sortedRiders.forEach(Rider::printSummary); // Method Reference 3: Rider::printSummary
+				break;
+			case 5:
+				// Lambda: sort customers by first name alphabetically
+				ArrayList<Customer> sortedByName = new ArrayList<>(dataBase.getCustomers());
+				sortedByName.sort((c1, c2) -> c1.getFirstName().compareTo(c2.getFirstName()));
+				System.out.println("\n--- Customers sorted by first name (A to Z) ---");
+				for (Customer cu : sortedByName)
+					System.out.println(cu.getFirstName() + " " + cu.getLastName());
+				break;
+			case 6:
+				// Lambda: sort orders by ordered date alphabetically (format DD-MM-YYYY sorts
+				// correctly as string)
+				ArrayList<Order> sortedByDate = new ArrayList<>(dataBase.getOrders());
+				sortedByDate.sort((o1, o2) -> o1.getOrderedDate().compareTo(o2.getOrderedDate()));
+				System.out.println("\n--- Orders sorted by date (earliest first) ---");
+				for (Order o : sortedByDate)
+					System.out.println("Order " + o.getCode() + " | Date: " + o.getOrderedDate() + " | Price: "
+							+ String.format("%.2f", o.getFinalPrice()));
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				ConsoleUI.invalidChoice();
+			}
+		}
+	}
+
+	/**
+	 * HW3 Part D - Wildcards Reports Menu. Accessible from System Admin menu,
+	 * option 12. Demonstrates all 4 wildcard functions from SystemReports.
+	 */
+	private void reportsMenuFlow() {
+		boolean back = false;
+		while (!back) {
+			ConsoleUI.printMenu("System Reports - Wildcards",
+					new String[] { "1. Show all restaurants [? extends Restaurant]",
+							"2. Show total revenue from all orders [? extends Order]",
+							"3. Add fast food restaurant to system [? super FastFoodRestaurant]",
+							"4. Find customer with highest balance [Generic getMax]", "0. Back" });
+			int choice = ScannerUtils.readInt(scanner, "Choose option: ");
+			switch (choice) {
+			case 1:
+				// Wildcard 1: ? extends Restaurant - works for any restaurant subtype
+				SystemReports.printAllRestaurants(dataBase.getRestaurants());
+				break;
+			case 2:
+				// Wildcard 2: ? extends Order - sums final prices of all orders
+				double total = SystemReports.getTotalRevenue(dataBase.getOrders());
+				System.out.println("\nTotal revenue from all orders: " + String.format("%.2f", total));
+				break;
+			case 3:
+				// Wildcard 3: ? super FastFoodRestaurant - adds to the main restaurant list
+				SystemReports.addFastFoodRestaurant(dataBase.getRestaurants(), scanner);
+				break;
+			case 4:
+				// Wildcard 4: Generic getMax with Comparable - finds customer with highest
+				// balance
+				model.Customer maxCustomer = SystemReports.getMax(dataBase.getCustomers());
+				if (maxCustomer != null)
+					System.out.println("\nCustomer with highest balance:\n" + maxCustomer);
+				else
+					System.out.println("No customers in system.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				ConsoleUI.invalidChoice();
+			}
 		}
 	}
 
@@ -733,7 +864,8 @@ public class DeliveryService {
 		for (int i = 0; i < 10; i++) {
 			Customer customer = dataBase.getCustomers().get(i);
 			Restaurant restaurant = restaurants.get(i % restaurants.size());
-			dataBase.addOrder(new Order(customer.getCode(), restaurant, String.format("%02d-06-2026", i + 1), 40 + i * 10));
+			dataBase.addOrder(
+					new Order(customer.getCode(), restaurant, String.format("%02d-06-2026", i + 1), 40 + i * 10));
 		}
 		Customer firstCustomer = dataBase.getCustomers().get(0);
 		dataBase.addOrder(new Order(firstCustomer.getCode(), restaurants.get(6), "11-06-2026", 130));
@@ -742,6 +874,7 @@ public class DeliveryService {
 		dataBase.assignRiderToOrder("Ri0001", "O0001");
 		dataBase.assignRiderToOrder("Ri0002", "O0002");
 		dataBase.assignRiderToOrder("Ri0003", "O0003");
-		ConsoleUI.info("Initial data loaded: admin/12345, 3 restaurant admins, 10 customers, 10 restaurants, 5 riders, 12 orders.");
+		ConsoleUI.info(
+				"Initial data loaded: admin/12345, 3 restaurant admins, 10 customers, 10 restaurants, 5 riders, 12 orders.");
 	}
 }

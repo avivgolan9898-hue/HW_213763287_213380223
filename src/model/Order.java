@@ -20,7 +20,6 @@ public class Order implements HasCodeField {
 
 	private static int count = 0;
 	private static final String[] VALID_STATUSES = { "pending", "sent", "on_the_way", "delivered" };
-	
 
 	public Order(String customerCode, Restaurant restaurant, String riderCode, String orderedDate, double basicPrice) {
 		this.code = generateOrderCode();
@@ -43,7 +42,7 @@ public class Order implements HasCodeField {
 		count++;
 		return String.format("O%04d", count);
 	}
-	
+
 	/**
 	 * Calculates the final price of the order based on the restaurant's pricing
 	 * rules. If no restaurant is associated, it returns the basic price.
@@ -105,12 +104,12 @@ public class Order implements HasCodeField {
 			ConsoleUI.error("Customer code cannot be null or empty.");
 			return;
 		}
-		
+
 		if (this.customerCode != null && this.customerCode.equals(customerCode)) {
 			ConsoleUI.info("Customer code is already set to " + customerCode + ", no change needed.");
 			return;
 		}
-		
+
 		this.customerCode = customerCode;
 	}
 
@@ -119,20 +118,18 @@ public class Order implements HasCodeField {
 			ConsoleUI.error("Restaurant cannot be null.");
 			return;
 		}
-		
+
 		if (this.restaurant != null && this.restaurant.getCode().equals(restaurant.getCode())) {
 			ConsoleUI.info("Restaurant is already set to " + restaurant.getName() + ", no change needed.");
 			return;
 		}
-		
+
 		if (this.restaurant != null) {
 			ConsoleUI.info("Changing restaurant from " + this.restaurant.getName() + " to " + restaurant.getName());
-		} 
-		else 
-		{
+		} else {
 			ConsoleUI.info("Setting restaurant to " + restaurant.getName());
 		}
-		
+
 		this.restaurant = restaurant;
 		this.restaurantCode = restaurant.getCode();
 		this.finalPrice = calculateFinalPrice();
@@ -237,16 +234,12 @@ public class Order implements HasCodeField {
 		String lineSeparator = "\r\n";
 		String displayRider = StringValidationUtils.isNullOrEmpty(riderCode) ? "Not assigned" : riderCode;
 		String displayDeliveredDate = "0".equals(deliveredDate) ? "Not delivered" : deliveredDate;
-		return "Order" + lineSeparator
-				+ "  Code: " + code + lineSeparator
-				+ "  Customer code: " + customerCode + lineSeparator
-				+ "  Restaurant code: " + restaurantCode + lineSeparator
-				+ "  Rider code: " + displayRider + lineSeparator
-				+ "  Ordered date: " + orderedDate + lineSeparator
-				+ "  Delivered date: " + displayDeliveredDate + lineSeparator
-				+ "  Basic price: " + String.format("%.2f", basicPrice) + lineSeparator
-				+ "  Final price: " + String.format("%.2f", finalPrice) + lineSeparator
-				+ "  Status: " + status;
+		return "Order" + lineSeparator + "  Code: " + code + lineSeparator + "  Customer code: " + customerCode
+				+ lineSeparator + "  Restaurant code: " + restaurantCode + lineSeparator + "  Rider code: "
+				+ displayRider + lineSeparator + "  Ordered date: " + orderedDate + lineSeparator + "  Delivered date: "
+				+ displayDeliveredDate + lineSeparator + "  Basic price: " + String.format("%.2f", basicPrice)
+				+ lineSeparator + "  Final price: " + String.format("%.2f", finalPrice) + lineSeparator + "  Status: "
+				+ status;
 	}
 
 	@Override
@@ -256,5 +249,15 @@ public class Order implements HasCodeField {
 		if (obj == null || getClass() != obj.getClass())
 			return false;
 		return code.equals(((Order) obj).code);
+	}
+
+	/**
+	 * HW3 Part A - Comparator. Sorts orders by final price from highest to lowest.
+	 */
+	public static class FinalPriceComparator implements java.util.Comparator<Order> {
+		@Override
+		public int compare(Order o1, Order o2) {
+			return Double.compare(o2.getFinalPrice(), o1.getFinalPrice()); // descending
+		}
 	}
 }

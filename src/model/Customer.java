@@ -2,7 +2,7 @@ package model;
 
 import utils.StringValidationUtils;
 
-public class Customer implements HasCodeField {
+public class Customer implements HasCodeField, Comparable<Customer> {
 	private final String code;
 	private String firstName;
 	private String lastName;
@@ -194,13 +194,27 @@ public class Customer implements HasCodeField {
 	@Override
 	public String toString() {
 		String lineSeparator = "\r\n";
-		return "Customer" + lineSeparator
-				+ "  Code: " + code + lineSeparator
-				+ "  Name: " + firstName + " " + lastName + lineSeparator
-				+ "  Email: " + email + lineSeparator
-				+ "  Phone: " + phoneNumber + lineSeparator
-				+ "  Balance: " + String.format("%.2f", balance) + lineSeparator
-				+ "  Address: " + getAddress();
+		return "Customer" + lineSeparator + "  Code: " + code + lineSeparator + "  Name: " + firstName + " " + lastName
+				+ lineSeparator + "  Email: " + email + lineSeparator + "  Phone: " + phoneNumber + lineSeparator
+				+ "  Balance: " + String.format("%.2f", balance) + lineSeparator + "  Address: " + getAddress();
+	}
+
+	/**
+	 * HW3 Part C - Method Reference 2. Used as Customer::printSummary via forEach
+	 * in DeliveryService.sortMenuFlow(). Prints a one-line summary of this
+	 * customer.
+	 */
+	public void printSummary() {
+		System.out.println(firstName + " " + lastName + " | Balance: " + String.format("%.2f", balance));
+	}
+
+	/**
+	 * HW3 Part A - Comparable. Sorts customers by credit balance from highest to
+	 * lowest.
+	 */
+	@Override
+	public int compareTo(Customer other) {
+		return Double.compare(other.getBalance(), this.getBalance()); // descending
 	}
 
 	@Override

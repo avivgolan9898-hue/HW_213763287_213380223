@@ -128,7 +128,7 @@ public class Rider implements HasCodeField {
 		for (Order assignedOrder : assignedOrders) {
 			if (assignedOrder != null && assignedOrder.getCode().equals(order.getCode())) {
 				System.out.println("Order is already assigned to this rider," + " failed to assign order: "
-						+ order.getCode() + " + to rider.");
+						+ order.getCode() + " to rider.");
 				return false;
 			}
 		}
@@ -141,16 +141,21 @@ public class Rider implements HasCodeField {
 		this.isAvailable = isAvailable;
 	}
 
+	/**
+	 * HW3 Part C - Method Reference 3. Used as Rider::printSummary via forEach in
+	 * DeliveryService.sortMenuFlow(). Prints a one-line summary of this rider.
+	 */
+	public void printSummary() {
+		System.out.println(getFirstName() + " " + getLastName() + " | Deliveries: " + getAssignedOrders().size());
+	}
+
 	@Override
 	public String toString() {
 		String lineSeparator = "\r\n";
-		return "Rider" + lineSeparator
-				+ "  Code: " + id + lineSeparator
-				+ "  Name: " + firstName + " " + lastName + lineSeparator
-				+ "  Phone: " + phoneNumber + lineSeparator
-				+ "  Vehicle: " + vehicle + lineSeparator
-				+ "  Available: " + (isAvailable ? "yes" : "no") + lineSeparator
-				+ "  Assigned orders: " + assignedOrders.size();
+		return "Rider" + lineSeparator + "  Code: " + id + lineSeparator + "  Name: " + firstName + " " + lastName
+				+ lineSeparator + "  Phone: " + phoneNumber + lineSeparator + "  Vehicle: " + vehicle + lineSeparator
+				+ "  Available: " + (isAvailable ? "yes" : "no") + lineSeparator + "  Assigned orders: "
+				+ assignedOrders.size();
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public class Restaurant implements HasCodeField {
 	protected double deliveryFee;
 
 	private static int count = 0; // to count the number of restaurants created
-	
+
 	/**
 	 * Constructor to initialize a Restaurant object with the given parameters. The
 	 * restaurant code is automatically generated based on the count of created
@@ -103,12 +103,10 @@ public class Restaurant implements HasCodeField {
 
 	protected String getDisplayDetails() {
 		String lineSeparator = "\r\n";
-		return "  Code: " + code + lineSeparator
-				+ "  Name: " + name + lineSeparator
-				+ "  Cuisine: " + type + lineSeparator
-				+ "  Rating: " + String.format("%.1f", rating) + lineSeparator
-				+ "  Status: " + (isOpen ? "open" : "closed") + lineSeparator
-				+ "  Delivery fee: " + String.format("%.2f", deliveryFee);
+		return "  Code: " + code + lineSeparator + "  Name: " + name + lineSeparator + "  Cuisine: " + type
+				+ lineSeparator + "  Rating: " + String.format("%.1f", rating) + lineSeparator + "  Status: "
+				+ (isOpen ? "open" : "closed") + lineSeparator + "  Delivery fee: "
+				+ String.format("%.2f", deliveryFee);
 	}
 
 	@Override
@@ -124,5 +122,15 @@ public class Restaurant implements HasCodeField {
 			return false;
 		Restaurant other = (Restaurant) obj;
 		return code.equals(other.code);
+	}
+
+	/**
+	 * HW3 Part A - Comparator. Sorts restaurants by rating from highest to lowest.
+	 */
+	public static class RatingComparator implements java.util.Comparator<Restaurant> {
+		@Override
+		public int compare(Restaurant r1, Restaurant r2) {
+			return Double.compare(r2.getRating(), r1.getRating()); // descending
+		}
 	}
 }
